@@ -1,3 +1,4 @@
+// Usage: node tests/e2e.mjs [file]. To test the published form, wrap dist/artifact.html in a page whose <head> is minimal (styles end up in <body>).
 // Main-path test at phone and desktop sizes: section completion, recall, order drill, sorter, flashcards,
 // mixed practice, exam + results, fix-my-mistakes, persistence after reload, search, glossary popup, export/import, no overflow, no console errors.
 import { createRequire } from 'module'; import path from 'path'; import { pathToFileURL } from 'url';

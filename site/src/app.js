@@ -93,7 +93,10 @@
   const TABS = [['home', 'المسار', 'route'], ['cards', 'البطاقات', 'cards'], ['practice', 'تدريب', 'mix'], ['exams', 'اختبارات', 'exam'], ['more', 'المزيد', 'more']];
 
   /* ---------------- shell ---------------- */
-  document.body.innerHTML = `
+  // keep styles safe: the publish wrapper may place <style>/<link> inside <body>
+  document.querySelectorAll('body > style, body > link, body > meta, body > title').forEach(e => document.head.append(e));
+  const ROOT = document.createElement('div'); ROOT.id = 'app'; document.body.append(ROOT);
+  ROOT.innerHTML = `
   <header class="top"><div class="top-in">
     <a class="brand" href="#home"><b>EMS 313</b><span>الصحة العامة والسلامة</span></a><span class="sp"></span>
     <a class="iconbtn" href="#search" aria-label="بحث">${icon('search')}</a>
