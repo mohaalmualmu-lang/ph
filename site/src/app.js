@@ -180,7 +180,10 @@
       <div class="meter" style="margin-top:8px"><i style="width:${pct(done, u.sections.length)}%"></i></div></div></div>
       ${open ? `<ol class="seclist">${u.sections.map(s => `<li><a href="#s.${s.key}"><span class="chk ${secDone(s.key) ? 'on' : ''}" aria-label="${secDone(s.key) ? 'مكتمل' : 'غير مكتمل'}">✓</span><span class="nm" dir="ltr">${esc(s.title)}</span><span class="src">${esc(s.src)}</span></a></li>`).join('')}</ol>` : ''}</section>`;
   }
-  function unitView(u) { main.innerHTML = `<div class="stack col">${unitCard(u)}</div>`; }
+  function unitView(u) {
+    const obj = u.objectives && u.objectives.length ? `<details class="panel" open><summary class="sub">أهداف الوحدة (Learning objectives) <span class="src" dir="ltr">${esc(u.objSrc || '')}</span></summary><ol dir="ltr" lang="en" class="small" style="margin:8px 0 0;padding-inline-start:1.3em">${u.objectives.map(o => `<li>${md(o)}</li>`).join('')}</ol></details>` : '';
+    main.innerHTML = `<div class="stack col">${unitCard(u)}${obj}</div>`;
+  }
 
   /* ---------------- section view ---------------- */
   function secView(s) {
@@ -233,6 +236,7 @@
       }
       case 'twocol': return `<div class="blk twocol"${R}>${[b.a, b.b].map(c => `<div><h4>${md(c.h)}</h4><ul>${c.items.map(i => `<li>${md(i)}</li>`).join('')}</ul></div>`).join('')}</div>`;
       case 'chain': return `<div class="blk flow" aria-label="cause and effect">${b.items.map(i => `<span>${md(i)}</span>`).join('<em>→</em>')}</div>`;
+      case 'case': return `<div class="why case" data-read="1"><div class="eyebrow" lang="ar" dir="rtl">سيناريو إسعافي</div><div class="q">${md(b.title)}</div><p style="margin:6px 0 0">${md(b.x)}</p><p style="margin:6px 0 0"><b>${md(b.q)}</b></p><div class="ans" hidden>${md(b.a)}</div><div class="rbar" lang="ar" dir="rtl"><button class="btn sm" data-act="reveal">فكّر ثم اكشف الإجابة</button>${b.src ? `<span class="src" dir="ltr">${esc(b.src)}</span>` : ''}</div></div>`;
       case 'why': return `<div class="why"><div class="q">Why? · ${md(b.q)}</div><div class="ans" hidden>${md(b.a)}</div><div class="rbar"><button class="btn sm" data-act="reveal" lang="ar">فكّر ثم اكشف الإجابة</button></div></div>`;
       case 'svg': return `<div class="diag" data-w="svg" data-id="${b.id}"></div>`;
       case 'order': return `<div class="widget" data-w="order" data-id="${b.id}"></div>`;
@@ -487,6 +491,13 @@
     const hist = S.exams.slice(-8).reverse();
     main.innerHTML = `<div class="stack col"><h1 class="title">الاختبارات</h1>
       ${S.run && !S.run.done ? `<div class="note warn"><span class="lab">اختبار غير مكتمل</span>${esc(S.run.title)} · <a href="#run">استكمل</a></div>` : ''}
+      <div class="panel stack"><div class="sub">اختبار شامل: كل أسئلة البنك</div>
+        <p class="small muted" style="margin:0">كل الأسئلة الموجودة (<b>${ALLQ.length}</b> سؤال، منها ${ALLQ.filter(q => q.past).length} سؤال سابق)، بدون ما ينقص ولا سؤال. تقدر تحدد الوحدات، وتقدر توقف وتكمل بعدين لأن تقدمك ينحفظ.</p>
+        <div class="row">${UNITS.map(u => `<label class="row small"><input type="checkbox" class="au" value="${u.id}" checked> Ch${u.n} (${u.questions.length})</label>`).join('')}</div>
+        <div class="grid2"><div><label class="small" for="aord">الترتيب</label><select id="aord"><option value="mix">عشوائي مخلوط من كل الوحدات</option><option value="unit">وحدة وحدة بالترتيب</option></select></div>
+          <div><label class="small" for="afb">التصحيح</label><select id="afb"><option value="now">فوري بعد كل سؤال</option><option value="end">في النهاية</option></select></div>
+          <div><label class="small" for="atm">المؤقت</label><select id="atm"><option value="0">بدون مؤقت</option><option value="1">دقيقة لكل سؤال</option></select></div></div>
+        <div class="row"><button class="btn pri" data-ex="all">ابدأ الاختبار الشامل</button>${bestExam('all') >= 0 ? `<span class="pill ${bestExam('all') >= 85 ? 'ok' : ''}">أفضل ${bestExam('all')}%</span>` : ''}</div></div>
       <div class="panel stack"><div class="sub">اختبار كل وحدة</div><p class="small muted" style="margin:0">20 سؤال عشوائي من الوحدة (أو كل أسئلتها إذا أقل)، بدون مؤقت، والتصحيح في النهاية.</p>
         <div class="stack">${UNITS.map(u => { const be = bestExam('unit:' + u.id); const n = u.questions.length; return `<div class="row"><button class="btn" data-ex="unit" data-u="${u.id}">Ch${u.n} · <span dir="ltr">${esc(u.title)}</span></button><span class="small muted">${Math.min(20, n)} من ${n}</span>${be >= 0 ? `<span class="pill ${be >= 80 ? 'ok' : ''}">أفضل ${be}%</span>` : ''}</div>`; }).join('')}</div></div>
       <div class="panel stack"><div class="sub">الاختبار النهائي (بمؤقت)</div><p class="small muted" style="margin:0">أسئلة من كل الوحدات بنسبة حجم كل وحدة، بمؤقت دقيقة لكل سؤال، والتصحيح في النهاية مع نتيجة لكل وحدة.</p>
@@ -510,6 +521,13 @@
     const b = e.target.closest('[data-ex]'); if (!b) return;
     const k = b.dataset.ex;
     if (k === 'unit') { const u = UNIT[b.dataset.u]; startRun({ kind: 'unit:' + u.id, title: 'اختبار Ch' + u.n + ' · ' + u.title, qs: shuffle(u.questions).slice(0, 20).map(q => q.id), mins: 0, fb: 'end' }); }
+    else if (k === 'all') {
+      const us = $$('.au').filter(x => x.checked).map(x => x.value);
+      if (!us.length) { toast('اختر وحدة واحدة على الأقل'); return; }
+      const qs = $('#aord').value === 'unit' ? UNITS.filter(u => us.includes(u.id)).flatMap(u => shuffle(u.questions)) : shuffle(ALLQ.filter(q => us.includes(q.u)));
+      const whole = us.length === UNITS.length;
+      startRun({ kind: whole ? 'all' : 'all-part', title: (whole ? 'الاختبار الشامل' : 'اختبار شامل لـ ' + us.map(u => 'Ch' + UNIT[u].n).join(' و ')) + ' (' + qs.length + ' سؤال)', qs: qs.map(q => q.id), mins: $('#atm').value === '1' ? qs.length : 0, fb: $('#afb').value });
+    }
     else if (k === 'final') {
       const n = +$('#fn').value, tot = ALLQ.length;
       let qs = []; UNITS.forEach(u => { qs.push(...shuffle(u.questions).slice(0, Math.max(3, Math.round(n * u.questions.length / tot)))); });

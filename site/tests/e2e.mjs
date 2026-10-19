@@ -55,6 +55,13 @@ for (const [label, vp] of [['phone', { width: 375, height: 780 }], ['desktop', {
   ok('exam shows result by unit', await p.isVisible('text=حسب الوحدة') && (await p.$$('.res-table tbody tr')).length >= 1);
   ok('exam saved', await p.evaluate(() => window.__app.S().exams.length === 1));
   ok('no overflow on results', await overflow() <= 0);
+  // comprehensive exam over the whole bank
+  await p.goto(url + '#exams'); await p.click('[data-ex=all]'); await p.waitForSelector('.qcard[data-qid]');
+  ok('comprehensive exam has every question', await p.evaluate(() => window.__app.S().run.qs.length === Object.keys(window.__app.Q).length && new Set(window.__app.S().run.qs).size === Object.keys(window.__app.Q).length));
+  await answerRight(); ok('comprehensive exam gives instant feedback', await p.isVisible('.expl'));
+  await p.click('#rsub'); await p.click('#cyes');
+  // case block reveal
+  await p.goto(url + '#s.ch2.s9'); await p.click('.case [data-act=reveal]'); ok('case answer revealed', await p.isVisible('.case .ans'));
   // final exam with timer starts
   await p.goto(url + '#exams'); await p.click('[data-ex=final]'); await p.waitForSelector('#tmr'); await p.waitForTimeout(1100); ok('final exam timer runs', /⏱ [0-9]+:[0-9]{2}/.test(await p.textContent('#tmr')));
   await p.click('#rsub'); await p.click('#cyes');
@@ -64,7 +71,7 @@ for (const [label, vp] of [['phone', { width: 375, height: 780 }], ['desktop', {
   ok('fix-my-mistakes empties the queue', await p.evaluate(() => Object.keys(window.__app.S().mis).length === 0));
   // persistence
   await p.reload(); await p.goto(url + '#home');
-  ok('progress persists after reload', await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('ems313-study-v1')); return s.sec['ch1.s2'].done && s.exams.length === 2; }));
+  ok('progress persists after reload', await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('ems313-study-v1')); return s.sec['ch1.s2'].done && s.exams.length === 3; }));
   ok('section ✓ shown on route', (await p.$$('.seclist .chk.on')).length >= 1);
   // steps page auto-checks
   await p.goto(url + '#steps'); ok('steps page renders 13 steps', (await p.$$('.steps li')).length === 13);
@@ -79,7 +86,7 @@ for (const [label, vp] of [['phone', { width: 375, height: 780 }], ['desktop', {
   await p.click('#exp'); const code = await p.inputValue('#expt');
   await p.evaluate(() => localStorage.clear());
   await p.fill('#impt', code); await p.click('#imp');
-  ok('export/import restores progress', await p.evaluate(() => window.__app.S().exams.length === 2));
+  ok('export/import restores progress', await p.evaluate(() => window.__app.S().exams.length === 3));
   await p.click('#rst'); await p.click('#ry'); ok('reset with in-page confirm', await p.evaluate(() => window.__app.S().exams.length === 0));
   for (const h of ['#home', '#tools', '#cards', '#exams', '#conflicts', '#steps', '#more', '#s.ch6.s7', '#s.ch3.s4', '#s.ch4.s5', '#s.ch2.s3']) { await p.goto(url + h); await p.waitForTimeout(80); const o = await overflow(); if (o > 0) ok('overflow ' + h, false, o + 'px'); }
   ok('no horizontal overflow on main pages', true);
