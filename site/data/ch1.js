@@ -168,7 +168,7 @@ export default {
   cards: [
     { sec: 's1', f: 'Infection preventionists protect…', b: 'Patients, healthcare workers and the surrounding community.', src: 'Slide 3' },
     { sec: 's1', f: 'Which other occupations support infection prevention and control?', b: 'Public health specialists, epidemiologists, lab techs, etc.', src: 'Slide 2' },
-    { sec: 's1', f: 'CBIC → ?', b: 'Certification Exam in Infection Control (CIC). CBIC = Certification Board of Infection Control and Epidemiology.', src: 'Slide 4' },
+    { sec: 's1', nl: true, f: 'CBIC → ?', b: 'Certification Exam in Infection Control (CIC). CBIC = Certification Board of Infection Control and Epidemiology.', src: 'Slide 4' },
     { sec: 's1', f: 'CIC core competencies: how many?', b: '6 (APIC has 4 domains instead).', src: 'Slides 5–6' },
     { sec: 's1', f: 'CIC core competencies 1–3?', b: '1. Identification of disease processes · 2. Surveillance & epidemiologic investigation · 3. Preventing/controlling the transmission of infectious diseases.', src: 'Slide 5' },
     { sec: 's1', f: 'CIC core competencies 4–6?', b: '4. Employee/Occupational Health · 5. Management & communication (leadership) · 6. Education & research.', src: 'Slide 5' },
